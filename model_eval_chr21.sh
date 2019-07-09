@@ -8,12 +8,10 @@
 
 cd $SLURM_SUBMIT_DIR
 
-INPUT_DIR="${PWD}/input"
-OUTPUT_DIR="${PWD}/output_chr1_"$exp
+OUTPUT_DIR="${PWD}/output_chr21_"$exp
 LOG_DIR="${OUTPUT_DIR}/logs"
 OUTPUT_DIR_TRAINING="${OUTPUT_DIR}/training_output"
-mkdir -p "${OUTPUT_DIR_TRAINING}"
-WES_PRETRAINED_MODEL="${PWD}/models/wes/model.ckpt"
+
 
 singularity -s exec -B /usr/lib/locale/:/usr/lib/locale/ --bind input:${OUTPUT_DIR}/ \
 deepvariant.simg \
