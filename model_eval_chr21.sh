@@ -10,7 +10,7 @@ cd $SLURM_SUBMIT_DIR
 
 OUTPUT_DIR="${PWD}/output_chr21_"$exp
 LOG_DIR="${OUTPUT_DIR}/logs"
-OUTPUT_DIR_TRAINING="${OUTPUT_DIR}/training_output"
+OUTPUT_DIR_TRAINING="${PWD}/output_chr1_"$exp/training_output
 
 
 singularity -s exec -B /usr/lib/locale/:/usr/lib/locale/ --bind input:${OUTPUT_DIR}/ \

@@ -238,4 +238,6 @@ gsutil cp -R  gs://deepvariant/models/DeepVariant/0.8.0/DeepVariant-inception_v3
 
 sbatch --export="exp=directAlign" model_train_chr1.sh
 
+## Model eval
+sbatch --export="exp=directAlign" model_train_chr1.sh
 
