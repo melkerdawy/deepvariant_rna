@@ -18,7 +18,6 @@ deepvariant.simg \
 /opt/deepvariant/bin/model_eval \
 --dataset_config_pbtxt="${OUTPUT_DIR}/eval_set.dataset_config.pbtxt" \
 --checkpoint_dir="${OUTPUT_DIR_TRAINING}" \
---keep_checkpoint_every_n_hours=0.05 \
 --batch_size=512 > "${LOG_DIR}/eval.log" 2>&1
 
 
