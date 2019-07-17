@@ -15,7 +15,7 @@ OUTPUT_DIR_TRAINING="${PWD}/output_chr1_"$exp/training_output
 
 singularity -s exec -B /usr/lib/locale/:/usr/lib/locale/ --bind input:${OUTPUT_DIR}/ \
 deepvariant.simg \
-/opt/deepvariant/bin/model_evel \
+/opt/deepvariant/bin/model_eval \
 --dataset_config_pbtxt="${OUTPUT_DIR}/eval_set.dataset_config.pbtxt" \
 --checkpoint_dir="${OUTPUT_DIR_TRAINING}" \
 --keep_checkpoint_every_n_hours=0.05 \
