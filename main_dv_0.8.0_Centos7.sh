@@ -241,3 +241,19 @@ sbatch --export="exp=directAlign" model_train_chr1.sh
 ## Model eval
 sbatch --export="exp=directAlign" model_eval_chr21.sh
 
+## create testing dataset
+
+INPUT_DIR="${PWD}/input"
+OUTPUT_DIR_TESTING="${PWD}/testing_dataset
+mkdir -p "${OUTPUT_DIR_TESTING}"
+
+singularity -s exec -B /usr/lib/locale/:/usr/lib/locale/  --bind input:${INPUT_DIR}/ \
+deepvariant.simg \
+/opt/deepvariant/bin/make_examples \
+--mode calling \
+--ref ${INPUT_DIR}/reference.fasta.gz \
+--reads ${INPUT_DIR}/$bam \
+--examples ${OUTPUT_DIR_TESTING}/test_set.tfrecord.gz \
+--sample_name "test" \
+--regions "chr20"
+
