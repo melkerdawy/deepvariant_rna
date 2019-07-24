@@ -239,5 +239,15 @@ gsutil cp -R  gs://deepvariant/models/DeepVariant/0.8.0/DeepVariant-inception_v3
 sbatch --export="exp=directAlign" model_train_chr1.sh
 
 ## Model eval
+exp=directAlign
+OUTPUT_DIR_TRAINING="${PWD}/output_chr1_"$exp/training_output
+mv $OUTPUT_DIR_TRAINING/checkpoint $OUTPUT_DIR_TRAINING/checkpoint_backup
+for f in $OUTPUT_DIR_TRAINING/model.ckpt-*.meta;do ck=$(basename $f .meta); 
+ echo "model_checkpoint_path: \"$ck\"" 
+ echo "all_model_checkpoint_paths: \"$ck\"" 
+done > $OUTPUT_DIR_TRAINING/checkpoint
+
+
+
 sbatch --export="exp=directAlign" model_eval_chr21.sh
 
