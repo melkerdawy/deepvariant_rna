@@ -6,7 +6,7 @@
 #  Created by Tamer Mansour on 6/7/19.
 #  
 
-# I subscribed for CentOS in AWS marketplace https://aws.amazon.com/mp/centos/ Then choosed to run from EC2 and continued as usual but expand the storage to 40 GB (login as the user "centos" rather than the user "root")
+# I subscribed for CentOS in AWS marketplace https://aws.amazon.com/mp/centos/ Then choosed to run from EC2 and continued as usual but expand the storage to 40 GB (login as the user "centos" rather than the user "root"). Ubuntu 16.04 LTS machine (t2.medium is fine)
 
 # 1) singularity 2.6.0 installation:
 
@@ -241,18 +241,14 @@ sbatch --export="exp=directAlign" model_train_chr1.sh
 ## Model eval
 exp=directAlign
 OUTPUT_DIR_TRAINING="${PWD}/output_chr1_"$exp/training_output
-mv $OUTPUT_DIR_TRAINING/checkpoint $OUTPUT_DIR_TRAINING/checkpoint_backup
-for f in $OUTPUT_DIR_TRAINING/model.ckpt-*.meta;do ck=$(basename $f .meta); 
- echo "model_checkpoint_path: \"$ck\"" 
- echo "all_model_checkpoint_paths: \"$ck\"" 
-done > $OUTPUT_DIR_TRAINING/checkpoint
+#mv $OUTPUT_DIR_TRAINING/checkpoint $OUTPUT_DIR_TRAINING/checkpoint_backup
+Models_file="${OUTPUT_DIR_TRAINING}/models.txt"
+for f in $OUTPUT_DIR_TRAINING/model.ckpt-*.meta;do  echo $(basename $f .meta);done | sort -t - -k2 -g > $Models_file
+#source model_eval_chr21_v2.sh "directAlign" "$Models_file"
+sbatch --export="exp=directAlign,Models_file=$Models_file" model_eval_chr21.sh
 
-
-
-sbatch --export="exp=directAlign" model_eval_chr21.sh
 
 ## create testing dataset
-
 INPUT_DIR="${PWD}/input"
 OUTPUT_DIR_TESTING="${PWD}/testing_dataset
 mkdir -p "${OUTPUT_DIR_TESTING}"

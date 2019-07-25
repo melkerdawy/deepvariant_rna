@@ -11,22 +11,24 @@ cd $SLURM_SUBMIT_DIR
 OUTPUT_DIR="${PWD}/output_chr21_"$exp
 LOG_DIR="${OUTPUT_DIR}/logs"
 OUTPUT_DIR_TRAINING="${PWD}/output_chr1_"$exp/training_output
-Models_file="${OUTPUT_DIR_TRAINING}/models.txt"
+start_ck=$(head -n1 $Models_file)
+echo -e "model_checkpoint_path: \"$start_ck\"\nall_model_checkpoint_paths: \"$start_ck\"" > $OUTPUT_DIR_TRAINING/checkpoint
 
-cd ${OUTPUT_DIR_TRAINING}
-ls model.ckpt-*.index | cut -f 1-2 -d "." > ${Models_file}
-cd -
-
-while IFS= read -r line
-do
-  singularity -s exec -B /usr/lib/locale/:/usr/lib/locale/ --bind input:${OUTPUT_DIR}/ \
+{
+   while read ck;do
+     while [ ! -f "$OUTPUT_DIR_TRAINING/$start_ck.metrics" ]; do sleep 10; done
+     start_ck=$ck
+     echo -e "model_checkpoint_path: \"$ck\"\nall_model_checkpoint_paths: \"$ck\"" > $OUTPUT_DIR_TRAINING/checkpoint
+   done < $Models_file
+}&
+singularity -s exec -B /usr/lib/locale/:/usr/lib/locale/ --bind input:${OUTPUT_DIR}/ \
 deepvariant.simg \
 /opt/deepvariant/bin/model_eval \
 --dataset_config_pbtxt="${OUTPUT_DIR}/eval_set.dataset_config.pbtxt" \
 --checkpoint_dir="${OUTPUT_DIR_TRAINING}" \
 --keep_checkpoint_every_n_hours=0.05 \
---checkpoint_path="${line}" \
 --batch_size=512 > "${LOG_DIR}/eval.log" 2>&1
-done < ${Models_file}
+
+
 
 squeue -l --job ${SLURM_JOB_ID}
