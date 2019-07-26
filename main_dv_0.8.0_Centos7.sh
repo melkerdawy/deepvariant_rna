@@ -239,7 +239,13 @@ gsutil cp -R  gs://deepvariant/models/DeepVariant/0.8.0/DeepVariant-inception_v3
 sbatch --export="exp=directAlign" model_train_chr1.sh
 
 ## Model eval
-sbatch --export="exp=directAlign" model_eval_chr21.sh
+exp=directAlign
+OUTPUT_DIR_TRAINING="${PWD}/output_chr1_"$exp/training_output
+#mv $OUTPUT_DIR_TRAINING/checkpoint $OUTPUT_DIR_TRAINING/checkpoint_backup
+Models_file="${OUTPUT_DIR_TRAINING}/models.txt"
+for f in $OUTPUT_DIR_TRAINING/model.ckpt-*.meta;do  echo $(basename $f .meta);done | sort -t - -k2 -g > $Models_file
+#source model_eval_chr21_v2.sh "directAlign" "$Models_file"
+sbatch --export="exp=directAlign,Models_file=$Models_file" model_eval_chr21.sh
 
 ##### pick the best model
 
