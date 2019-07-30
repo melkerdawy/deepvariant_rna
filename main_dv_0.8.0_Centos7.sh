@@ -6,7 +6,7 @@
 #  Created by Tamer Mansour on 6/7/19.
 #  
 
-# I subscribed for CentOS in AWS marketplace https://aws.amazon.com/mp/centos/ Then choosed to run from EC2 and continued as usual but expand the storage to 40 GB (login as the user "centos" rather than the user "root")
+# I subscribed for CentOS in AWS marketplace https://aws.amazon.com/mp/centos/ Then choosed to run from EC2 and continued as usual but expand the storage to 40 GB (login as the user "centos" rather than the user "root"). Ubuntu 16.04 LTS machine (t2.medium is fine)
 
 # 1) singularity 2.6.0 installation:
 
@@ -266,6 +266,8 @@ python ${SHUFFLE_SCRIPT_DIR}/print_f1.py \
 
 ##### create testing dataset
 
+
+## create testing dataset
 INPUT_DIR="${PWD}/input"
 OUTPUT_DIR_TESTING="${PWD}/testing_dataset
 mkdir -p "${OUTPUT_DIR_TESTING}"
