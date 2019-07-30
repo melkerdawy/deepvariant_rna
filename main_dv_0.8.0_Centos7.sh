@@ -247,11 +247,34 @@ for f in $OUTPUT_DIR_TRAINING/model.ckpt-*.meta;do  echo $(basename $f .meta);do
 #source model_eval_chr21_v2.sh "directAlign" "$Models_file"
 sbatch --export="exp=directAlign,Models_file=$Models_file" model_eval_chr21.sh
 
+##### pick the best model
+
+OUTPUT_DIR_TRAINING="${PWD}/output_chr1_"$exp/training_output
+SHUFFLE_SCRIPT_DIR="${PWD}/tools"
+#mkdir -p ${SHUFFLE_SCRIPT_DIR}
+#not sure if the SHUFFLE_SCRIPT_DIR is deleted or not
+
+mkdir -p ${PWD}/metrics
+gsutil -m cp  ${OUTPUT_DIR_TRAINING}/model.ckpt-*.metrics ${PWD}/metrics/
+
+wget https://raw.githubusercontent.com/google/deepvariant/r0.8/tools/print_f1.py -O ${SHUFFLE_SCRIPT_DIR}/print_f1.py
+
+python ${SHUFFLE_SCRIPT_DIR}/print_f1.py \
+--metrics_dir="${PWD}/metrics/" | sort -k 3 -g -r | head -1
+
+## we might need to use /tmp/metrics instead of ${PWD}/metrics
+
+##### create testing dataset
+
 
 ## create testing dataset
 INPUT_DIR="${PWD}/input"
 OUTPUT_DIR_TESTING="${PWD}/testing_dataset
 mkdir -p "${OUTPUT_DIR_TESTING}"
+OUTPUT_DIR_TRAINING="${PWD}/output_chr1_"$exp/training_output
+best=""
+
+## the index of best argument  will be decided after the previous step 
 
 singularity -s exec -B /usr/lib/locale/:/usr/lib/locale/  --bind input:${INPUT_DIR}/ \
 deepvariant.simg \
@@ -262,4 +285,36 @@ deepvariant.simg \
 --examples ${OUTPUT_DIR_TESTING}/test_set.tfrecord.gz \
 --sample_name "test" \
 --regions "chr20"
+
+##### calling with the best cutomized model
+
+singularity -s exec -B /usr/lib/locale/:/usr/lib/locale/  --bind input:${INPUT_DIR}/ \
+deepvariant.simg \
+/opt/deepvariant/bin/call_variants \
+--outfile ${OUTPUT_DIR_TESTING}/test_set.cvo.tfrecord.gz \
+--examples ${OUTPUT_DIR_TESTING}/test_set.tfrecord.gz \
+--checkpoint ${OUTPUT_DIR_TRAINING}/model.ckpt-{best} \
+
+singularity -s exec -B /usr/lib/locale/:/usr/lib/locale/  --bind input:${INPUT_DIR}/ \
+deepvariant.simg \
+/opt/deepvariant/bin/postprocess_variants \
+--ref ${INPUT_DIR}/reference.fasta.gz \
+--infile ${OUTPUT_DIR_TESTING}/test_set.cvo.tfrecord.gz \
+--outfile ${OUTPUT_DIR_TESTING}/test_set.vcf.gz \
+
+##### calling with the original weg model
+
+singularity -s exec -B /usr/lib/locale/:/usr/lib/locale/  --bind input:${INPUT_DIR}/ \
+deepvariant.simg \
+/opt/deepvariant/bin/call_variants \
+--outfile ${OUTPUT_DIR_TESTING}/test_set_original.cvo.tfrecord.gz \
+--examples ${OUTPUT_DIR_TESTING}/test_set.tfrecord.gz \
+--checkpoint models/wes \
+
+singularity -s exec -B /usr/lib/locale/:/usr/lib/locale/  --bind input:${INPUT_DIR}/ \
+deepvariant.simg \
+/opt/deepvariant/bin/postprocess_variants \
+--ref ${INPUT_DIR}/reference.fasta.gz \
+--infile ${OUTPUT_DIR_TESTING}/test_set_original.cvo.tfrecord.gz \
+--outfile ${OUTPUT_DIR_TESTING}/test_set_original.vcf.gz \
 
